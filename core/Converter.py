@@ -72,7 +72,7 @@ class Converter:
         try:
             buf = BytesIO()
             binary_file = buf.read(-1)
-            output = tmp_path + "." + new_extension
+            output: str = tmp_path + "." + new_extension
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_text(source=binary_file, to=new_extension, format=new_extension)
             new_file = FileResponse(

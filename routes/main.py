@@ -4,11 +4,10 @@ from fastapi.templating import Jinja2Templates
 from core.Options import Options
 from core.Converter import Converter
 from core.Compression import Compression
-import re
+from core.Globals import REG_STR
 
 router = APIRouter()
 templates = Jinja2Templates(directory="core/Templates")
-EXT_REGEX = re.compile(r"^[a-z]+$")
 
 # region Routes divers
 @router.get("/", response_class=HTMLResponse)
@@ -27,7 +26,7 @@ def get_client_host(request: Request):
 @router.post("/convert")
 async def convert_file(request: Request, file: UploadFile, new_extension: str = Form(...)):
     options = Options("./core/Options.json")
-    if not EXT_REGEX.fullmatch(new_extension):
+    if not REG_STR.fullmatch(new_extension):
         raise HTTPException(status_code=400, detail="New extension invalid format")
     
     if options.is_in_extension(file, new_extension):  
