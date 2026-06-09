@@ -5,7 +5,7 @@ import os
 import ffmpeg
 import magic
 import asyncio
-
+import shlex
 
 class ConvertVideo:
 
@@ -47,7 +47,7 @@ class ConvertVideo:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
 
-            output_path = f"{input_path}.{new_extension}"
+            output_path =  shlex.quote(f"{input_path}.{new_extension}")
 
             await asyncio.to_thread(run_ffmpeg, input_path, output_path)
 
