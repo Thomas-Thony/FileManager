@@ -7,4 +7,4 @@ For any type of report, it must contains theses elements :
 - Type (Bug, security breach, etc...)
 - Impact zone
 - Impact value (moderate, high, critical, etc...)
-- If exist, mention CVE associated 
+- If exist, mention CVE or CWE associated 
