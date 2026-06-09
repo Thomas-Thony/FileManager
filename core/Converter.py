@@ -6,6 +6,7 @@ from core.templates import templates
 from typing import  Any
 from fastapi import HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
+from core.Globals import REG_STR, ERROR_PAGE
 from io import BytesIO   
 import pypandoc
 import os
@@ -19,17 +20,19 @@ class Converter:
     async def is_convertion_valid(file: UploadFile, new_extension: str, request: Request) -> Any:
         try:
             options = Options('./core/Options.json')
+            if not REG_STR.fullmatch(new_extension):
+                raise HTTPException(status_code=400, detail="New extension invalid format")
             if options.is_in_extension(file, new_extension) != True :
-                return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": "Le format d'origine et de destination ne sont pas compatibles !"})
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "Le format d'origine et de destination ne sont pas compatibles !"})
                 
             file_size_mb = (file.size or 0) / 1000000 # Convert bytes to MB
             
             if file_size_mb >= options.max_size:
-                return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": f"Votre fichier doit faire strictement moins de {options.max_size} MO !"})
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Votre fichier doit faire strictement moins de {options.max_size} MO !"})
 
             return await Converter.select_converter(file, new_extension, request)
         except Exception as e:
-            return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": f"Erreur lors de la vérification du fichier : {e}"})
+            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Erreur lors de la vérification du fichier : {e}"})
 
     @staticmethod
     async def select_converter(file: UploadFile, new_extension: str, request: Request):
@@ -57,7 +60,7 @@ class Converter:
                 converter = Converter.convert_text(tmp_path, file, new_extension, request)
             
             case _:
-                return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": "Le fichier possède un format non pris en charge"})
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "Le fichier possède un format non pris en charge"})
         
         # Nettoyage du fichier temporaire dans tous les cas (succès ou erreur)
         if os.path.exists(tmp_path):
@@ -80,7 +83,7 @@ class Converter:
             )
             return new_file
         except Exception as e:
-            return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": f"Une erreur a été rencontrée lors de la conversion du texte : {e}"})
+            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Une erreur a été rencontrée lors de la conversion du texte : {e}"})
         
     @staticmethod
     def convert_document(tmp_path: str, file: UploadFile,  new_extension: str, request: Request) -> Any | bool:
