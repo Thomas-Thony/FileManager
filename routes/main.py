@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException, UploadFile, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from core.Options import Options
 from core.Converter import Converter
 from core.Compression import Compression
 
@@ -23,7 +24,12 @@ def get_client_host(request: Request):
 # region Conversion de fichier
 @router.post("/convert")
 async def convert_file(request: Request, file: UploadFile, new_extension: str = Form(...)):
-    return await Converter.is_convertion_valid(file, new_extension, request)
+    options = Options("./core/Options.json")
+    
+    if options.is_in_extension(file, new_extension) == True :  
+        return await Converter.is_convertion_valid(file, new_extension, request)
+    else:
+        raise HTTPException(status_code=400, detail="New extension unknown !")
 # endregion
 
 #region Compression de fichier
