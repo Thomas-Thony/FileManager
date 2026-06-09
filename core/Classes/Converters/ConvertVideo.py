@@ -1,6 +1,5 @@
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import Response
-from io import BytesIO
 import tempfile
 import os
 import ffmpeg
@@ -33,8 +32,8 @@ class ConvertVideo:
                 print("FFmpeg crash:", str(e))
                 raise
 
-        input_path = None
-        output_path = None
+        input_path: str = ""
+        output_path: str = ""
 
         try:
             await file.seek(0)
@@ -54,8 +53,6 @@ class ConvertVideo:
 
             with open(output_path, "rb") as f:
                 output_bytes = f.read()
-
-            output_buf = BytesIO(output_bytes)
 
             mime = magic.Magic(mime=True)
             new_mime = mime.from_buffer(output_bytes)
