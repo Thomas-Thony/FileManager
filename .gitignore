@@ -1,0 +1,9 @@
+.MyEnv
+.env
+node_modules
+vendor
+package-lock.json
+composer-lock.json
+vendor
+__pycache__
+.vscode
