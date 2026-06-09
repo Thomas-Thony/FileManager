@@ -3,13 +3,11 @@ from core.Classes.Converters.ConvertImage import ConvertImage
 from core.Classes.Converters.ConvertAudio import ConvertAudio
 from core.Classes.Converters.ConvertVideo import ConvertVideo
 from core.templates import templates
-#from core.Handlers.templates import templates
 from typing import  Any
 from fastapi import HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from io import BytesIO   
 import pypandoc
-# import exiftool
 import os
 import tempfile
 import shutil
@@ -22,7 +20,7 @@ class Converter:
         try:
             options = Options('./core/Options.json')
             if options.is_in_extension(file, new_extension) != True :
-                return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": f"Le format d'origine et de destination ne sont pas compatibles !"})
+                return templates.TemplateResponse(request=request, name="error.html", context={"error_detail": "Le format d'origine et de destination ne sont pas compatibles !"})
                 
             file_size_mb = (file.size or 0) / 1000000 # Convert bytes to MB
             
@@ -72,7 +70,7 @@ class Converter:
         try:
             buf = BytesIO()
             binary_file = buf.read(-1)
-            output: str = tmp_path + "." + new_extension
+            output: str = (tmp_path + "." + new_extension) or ""
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_text(source=binary_file, to=new_extension, format=new_extension)
             new_file = FileResponse(
@@ -91,7 +89,7 @@ class Converter:
             if new_extension == "pdf":
                 extra_args = ["--pdf-engine=weasyprint"]
             
-            output = tmp_path + "." + new_extension
+            output: str = tmp_path + "." + new_extension
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_file(tmp_path, new_extension, outputfile=output, extra_args=extra_args)
             new_file = FileResponse(
