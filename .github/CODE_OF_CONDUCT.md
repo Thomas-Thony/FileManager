@@ -1,1 +1,2 @@
-# Expected Attitude
+# Code of conduct 
+## Expected Attitude
