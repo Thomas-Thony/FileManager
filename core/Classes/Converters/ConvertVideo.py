@@ -24,12 +24,17 @@ class ConvertVideo:
             filename = file.filename or "video" # If filename start with ".", add a default title 
             basename = filename.rsplit(".", 1)[0]
 
-            # Temporary input file
+            # Temporary input file(Security by recreating the file )
             with tempfile.NamedTemporaryFile(delete=False) as input_tmp:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
              
-            output_path =  output_path = f"{input_path}.{extension}"
+            # Temporary output file(Security by recreating the file )
+            with tempfile.NamedTemporaryFile(delete=False) as output_tmp:
+                input_tmp.write(input_bytes)
+                output_path = output_tmp.name
+                
+            # output_path =  output_path = f"{input_path}.{extension}"
             
             buf = BytesIO()
             buf.seek(0)
