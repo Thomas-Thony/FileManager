@@ -6,14 +6,18 @@ import tempfile
 import os
 import ffmpeg
 import magic
-import shlex
-
 class ConvertVideo:
 
     @staticmethod
     async def convert_video(file: UploadFile, new_extension: str):
         input_path: str = ""
-        output_path: str = shlex.quote((f"{input_path}.{new_extension}") or "") #Filter with escape shells args
+        output_path: str = ""
+        
+        new_extension =(new_extension or "").lstrip(".")
+        if not new_extension.isalnum(): 
+            raise HTTPException(status_code=400, detail="Invalid extension format")
+        
+        output_path =  output_path = f"{input_path}.{new_extension}"
         buf = BytesIO()
         
         try:
