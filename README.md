@@ -26,7 +26,7 @@ pip install requirements.txt
 Finnaly, you can run the api by launching Uvicorn : 
 
 ```cmd
-uvicorn main:api --host 0.0.0.0 --port 8081 --reload
+uvicorn main:api --host 0.0.0.0 --port 8081 --reload # Ensure modifications updated
 ```
 ## Contribution
 Please refer to the [contributing guide here](./.github/CONTRIBUTING.md)

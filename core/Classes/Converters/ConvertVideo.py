@@ -32,7 +32,7 @@ class ConvertVideo:
             output_bytes = buf.read(-1)
 
             mime = magic.Magic(mime=True)
-            new_mime: Literal["application/octet-stream"] = mime.from_buffer(output_bytes)
+            new_mime: str | Literal["application/octet-stream"] = mime.from_buffer(output_bytes)
 
             return Response(
                 content=output_bytes,
@@ -56,10 +56,10 @@ class ConvertVideo:
 
         finally:
             try:
-                if input_path and os.path.exists(input_path):
+                if os.path.exists(input_path):
                     os.remove(input_path)
 
-                if output_path and os.path.exists(output_path):
+                if os.path.exists(output_path):
                     os.remove(output_path)
 
             except Exception:
