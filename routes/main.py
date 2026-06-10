@@ -9,7 +9,7 @@ from core.Globals import REG_STR
 router = APIRouter()
 templates = Jinja2Templates(directory="core/Templates")
 
-# region Routes divers
+# region Miscellaneous paths
 @router.get("/", response_class=HTMLResponse)
 async def main(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
@@ -22,20 +22,22 @@ def get_client_host(request: Request):
 
 #endregion
 
-# region Conversion de fichier
+# region File's conversion
 @router.post("/convert")
 async def convert_file(request: Request, file: UploadFile, new_extension: str = Form(...)):
-    options = Options("./core/Options.json")
+    # Check if the new extension given is right according to the regex
     if not REG_STR.fullmatch(new_extension):
-        raise HTTPException(status_code=400, detail="New extension invalid format")
+        raise HTTPException(status_code=400, detail="Please, enter a valid extension !")
     
-    if options.is_in_extension(file, new_extension):  
+    # Check if the new extension given exist among thoses in the options    
+    options = Options("./core/Options.json")
+    if options.is_in_extension(file, new_extension):
         return await Converter.is_convertion_valid(file, new_extension, request)
     else:
         raise HTTPException(status_code=400, detail="New extension unknown !")
 # endregion
 
-#region Compression de fichier
+#region File's compression
 @router.post("/compression")
 def compress_file():
     return Compression.compression()

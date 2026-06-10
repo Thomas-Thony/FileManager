@@ -1,10 +1,11 @@
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import Response
+from typing import Literal
+from io import BytesIO  
 import tempfile
 import os
 import ffmpeg
 import magic
-import asyncio
 import shlex
 
 class ConvertVideo:
@@ -13,26 +14,27 @@ class ConvertVideo:
     async def convert_video(file: UploadFile, new_extension: str):
         input_path: str = ""
         output_path: str = ""
-
+        buf = BytesIO()
+        
         try:
             await file.seek(0)
             input_bytes = await file.read()
 
-            filename = file.filename or "video"
+            filename = file.filename or "video" # If filename start with ".", add a default title 
             basename = filename.rsplit(".", 1)[0]
 
-            # fichier temporaire input
+            # Temporary input file
             with tempfile.NamedTemporaryFile(delete=False) as input_tmp:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
 
-            output_path = shlex.quote(f"{input_path}.{new_extension}")
+            output_path = shlex.quote(f"{input_path}.{new_extension}") #Filter with escape shells args
 
-            with open(output_path, "rb") as f:
-                output_bytes = f.read()
+            buf.seek(0)
+            output_bytes = buf.read(-1)
 
             mime = magic.Magic(mime=True)
-            new_mime = mime.from_buffer(output_bytes)
+            new_mime: Literal["application/octet-stream"] = mime.from_buffer(output_bytes)
 
             return Response(
                 content=output_bytes,

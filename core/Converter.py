@@ -23,20 +23,21 @@ class Converter:
             if not REG_STR.fullmatch(new_extension):
                 raise HTTPException(status_code=400, detail="New extension invalid format")
             if options.is_in_extension(file, new_extension) != True :
-                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "Le format d'origine et de destination ne sont pas compatibles !"})
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "The original and choosen format are not compatible !"})
                 
             file_size_mb = (file.size or 0) / 1000000 # Convert bytes to MB
             
+            # Check if file heavy or not 
             if file_size_mb >= options.max_size:
-                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Votre fichier doit faire strictement moins de {options.max_size} MO !"})
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Your file must be {options.max_size} MB or lighter !"})
 
             return await Converter.select_converter(file, new_extension, request)
         except Exception as e:
-            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Erreur lors de la vérification du fichier : {e}"})
+            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Error while verifying your file : {e}"})
 
     @staticmethod
     async def select_converter(file: UploadFile, new_extension: str, request: Request):
-        # Sauvegarde temporaire sur le disque
+        # Temporary save on the disk
         suffix = os.path.splitext(file.filename or "")[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             shutil.copyfileobj(file.file, tmp)
@@ -60,9 +61,9 @@ class Converter:
                 converter = Converter.convert_text(tmp_path, file, new_extension, request)
             
             case _:
-                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "Le fichier possède un format non pris en charge"})
-        
-        # Nettoyage du fichier temporaire dans tous les cas (succès ou erreur)
+                return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": "The file has an unknown type!"})
+
+        # Cleaning of the temporary file in each cases (Success or Error)
         if os.path.exists(tmp_path):
             os.unlink(tmp_path)
             
@@ -83,11 +84,12 @@ class Converter:
             )
             return new_file
         except Exception as e:
-            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Une erreur a été rencontrée lors de la conversion du texte : {e}"})
+            return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"An error was encountered during the text conversion : {e}"})
         
     @staticmethod
     def convert_document(tmp_path: str, file: UploadFile,  new_extension: str, request: Request) -> Any | bool:
         try:
+            # PDF conversion is not aviable by default in pypandoc, so we have to 'force' it
             extra_args = []
             if new_extension == "pdf":
                 extra_args = ["--pdf-engine=weasyprint"]
@@ -102,12 +104,4 @@ class Converter:
             )
             return new_file
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Une erreur a été rencontrée lors de la conversion du document : {e}")
-
-    #
-    # @staticmethod
-    # def extract_file_properties(path: str) -> List[dict[str, Any]]:
-    #    absolute_path = os.path.abspath(path)
-    #    with exiftool.ExifToolHelper() as et:
-    #        metadata = et.get_metadata(absolute_path)
-    #    return metadata
+            raise HTTPException(status_code=400, detail=f"An error was encountered during the document conversion : {e}")

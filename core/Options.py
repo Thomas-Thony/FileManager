@@ -1,6 +1,8 @@
 import json
 from fastapi import UploadFile
 from typing import Any
+from fastapi import HTTPException
+from core.Globals import REG_STR
 
 class Options: 
     accpeted_mime: list[str]
@@ -37,6 +39,9 @@ class Options:
     
     # Vérifie si l'extension de fichier correspond bien au type attendu
     def is_in_extension(self, file: UploadFile, new_extension: str) -> bool :
+        if not REG_STR.fullmatch(new_extension):
+            raise HTTPException(status_code=400, detail="New extension invalid format")
+        
         list_option = self.get_type_options(file.content_type or "")
         
         if new_extension in list_option["extensions"]:
