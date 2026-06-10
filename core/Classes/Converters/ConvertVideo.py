@@ -13,7 +13,7 @@ class ConvertVideo:
     @staticmethod
     async def convert_video(file: UploadFile, new_extension: str):
         input_path: str = ""
-        output_path: str = ""
+        output_path: str = shlex.quote((f"{input_path}.{new_extension}") or "") #Filter with escape shells args
         buf = BytesIO()
         
         try:
@@ -27,8 +27,6 @@ class ConvertVideo:
             with tempfile.NamedTemporaryFile(delete=False) as input_tmp:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
-
-            output_path = shlex.quote(f"{input_path}.{new_extension}") #Filter with escape shells args
 
             buf.seek(0)
             output_bytes = buf.read(-1)
