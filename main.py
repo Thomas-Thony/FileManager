@@ -8,8 +8,12 @@ def include_router(app: FastAPI):
 
 def start_api() -> FastAPI :
     app = FastAPI(title="Files Manager", version="1.0.1")
+    
+    # Set the style folder for HTMLResponses 
     app.mount("/static", StaticFiles(directory="core/Templates/styles"), name="static")
+    
     include_router(app)
+    
     return app
 
 api = start_api()

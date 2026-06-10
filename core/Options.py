@@ -16,7 +16,7 @@ class Options:
         self.extensions_source = source
         self.load()
     
-    # On charge les données à partir des fichiers json
+    # Load datas from json file 
     def load(self): 
         with open(self.mimes_source, "r") as f:
             data = json.load(f)
@@ -24,20 +24,21 @@ class Options:
             self.accepted_extensions = data["extensions"]
             self.max_size = data["parameters"]["max_size"]
         
-    # Chargement d'options spécifiques par rapport à un type de fichiers
+    # Loading specific options with respect to a file type
     def get_type_options(self, type: str) -> dict[str, Any]:
         with open(self.mimes_source) as f:
             data = json.load(f)
         for category, mimes in data["mimes"].items():
-            # "image/png" est dans data["mimes"]["image"] => category = "image"
+            # Exemple :
+            # "image/png" is in data["mimes"]["image"] => category = "image"
             if type in mimes:
                 return {
                     "mimes": mimes,
                     "extensions": data["extensions"][category]  # data["extensions"]["image"]
                 }
-        raise ValueError(f"Type MIME non supporté : {type}")
-    
-    # Vérifie si l'extension de fichier correspond bien au type attendu
+        raise ValueError(f"MIME not supported : {type}")
+
+    # Verify if the extension match with the type expected
     def is_in_extension(self, file: UploadFile, new_extension: str) -> bool :
         if not REG_STR.fullmatch(new_extension):
             raise HTTPException(status_code=400, detail="New extension invalid format")

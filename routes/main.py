@@ -17,7 +17,7 @@ async def main(request: Request):
 @router.get("/host")
 def get_client_host(request: Request):
     if request.client is None:
-        raise HTTPException(status_code=400, detail="Impossible de déterminer l'hôte client")
+        raise HTTPException(status_code=400, detail="Impossible to determine client host")
     return {"client_host": request.client.host} # In localhost, this should return 127.0.0.1
 
 #endregion

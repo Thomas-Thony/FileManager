@@ -7,7 +7,7 @@ import mimetypes
 class ConvertImage:
     
     @staticmethod
-    def convert_image(tmp_path: str, file: UploadFile, new_extension:str):
+    def convert_image(file: UploadFile, new_extension:str):
         try:
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             new_mime = mimetypes.types_map["."+new_extension]
@@ -28,5 +28,5 @@ class ConvertImage:
             return new_file
         
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Erreur lors de la conversion d'image : {e}")
+            raise HTTPException(status_code=500, detail=f"Error while converting the picture : {e}")
     

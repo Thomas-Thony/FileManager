@@ -46,7 +46,7 @@ class Converter:
         mime_file = (file.content_type or "").split("/")[0]
         match mime_file :
             case "image":
-                converter = ConvertImage.convert_image(tmp_path, file, new_extension)
+                converter = ConvertImage.convert_image(file, new_extension)
             
             case "application": 
                 converter = Converter.convert_document(tmp_path, file, new_extension, request)
@@ -94,7 +94,7 @@ class Converter:
             if new_extension == "pdf":
                 extra_args = ["--pdf-engine=weasyprint"]
             
-            output: str = tmp_path + "." + new_extension
+            output: str = (tmp_path + "." + new_extension) or ""
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_file(tmp_path, new_extension, outputfile=output, extra_args=extra_args)
             new_file = FileResponse(
