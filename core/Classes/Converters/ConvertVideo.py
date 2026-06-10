@@ -13,13 +13,10 @@ class ConvertVideo:
         input_path: str = ""
         output_path: str = ""
         
-        extension =(new_extension or "").lstrip(".")
-        if not extension.isalnum(): 
+        extension = (new_extension or "").lstrip(".")
+        if not extension.isalnum():
             raise HTTPException(status_code=400, detail="Invalid extension format")
-        
-        output_path =  output_path = f"{input_path}.{extension}"
-        buf = BytesIO()
-        
+                
         try:
             await file.seek(0)
             input_bytes = await file.read()
@@ -31,8 +28,12 @@ class ConvertVideo:
             with tempfile.NamedTemporaryFile(delete=False) as input_tmp:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
-
+             
+            output_path =  output_path = f"{input_path}.{extension}"
+            
+            buf = BytesIO()
             buf.seek(0)
+            
             output_bytes = buf.read(-1)
 
             mime = magic.Magic(mime=True)
@@ -42,7 +43,7 @@ class ConvertVideo:
                 content=output_bytes,
                 media_type=new_mime,
                 headers={
-                    "Content-Disposition": f'attachment; filename="{basename}.{new_extension}"'
+                    "Content-Disposition": f'attachment; filename="{basename}.{extension}"'
                 }
             )
 
