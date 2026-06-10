@@ -11,27 +11,6 @@ class ConvertVideo:
 
     @staticmethod
     async def convert_video(file: UploadFile, new_extension: str):
-
-        def run_ffmpeg(input_path: str, output_path: str):
-            try:
-                out, err = (
-                    ffmpeg
-                    .input(input_path)
-                    .output(
-                        output_path,
-                        vcodec="libx264",
-                        acodec="aac",
-                        format=new_extension
-                    )
-                    .overwrite_output()
-                    .run(capture_stdout=True, capture_stderr=True)
-                )
-
-            
-            except Exception as e:
-                print("FFmpeg crash:", str(e))
-                raise
-
         input_path: str = ""
         output_path: str = ""
 
@@ -47,9 +26,7 @@ class ConvertVideo:
                 input_tmp.write(input_bytes)
                 input_path = input_tmp.name
 
-            output_path =  shlex.quote(f"{input_path}.{new_extension}")
-
-            await asyncio.to_thread(run_ffmpeg, input_path, output_path)
+            output_path = shlex.quote(f"{input_path}.{new_extension}")
 
             with open(output_path, "rb") as f:
                 output_bytes = f.read()

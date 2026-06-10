@@ -40,7 +40,7 @@ class Converter:
         suffix = os.path.splitext(file.filename or "")[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             shutil.copyfileobj(file.file, tmp)
-            tmp_path = tmp.name
+            tmp_path: str = tmp.name or ""
         
         mime_file = (file.content_type or "").split("/")[0]
         match mime_file :
