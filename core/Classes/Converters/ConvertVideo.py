@@ -13,11 +13,11 @@ class ConvertVideo:
         input_path: str = ""
         output_path: str = ""
         
-        new_extension =(new_extension or "").lstrip(".")
-        if not new_extension.isalnum(): 
+        extension =(new_extension or "").lstrip(".")
+        if not extension.isalnum(): 
             raise HTTPException(status_code=400, detail="Invalid extension format")
         
-        output_path =  output_path = f"{input_path}.{new_extension}"
+        output_path =  output_path = f"{input_path}.{extension}"
         buf = BytesIO()
         
         try:
