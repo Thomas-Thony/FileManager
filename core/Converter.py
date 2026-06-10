@@ -6,7 +6,7 @@ from core.templates import templates
 from typing import  Any
 from fastapi import HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
-from core.Globals import REG_STR, ERROR_PAGE
+from core.Globals import REG_STR, ERROR_PAGE, filter_extension
 from io import BytesIO   
 import pypandoc
 import os
@@ -18,6 +18,7 @@ class Converter:
     
     @staticmethod
     async def is_convertion_valid(file: UploadFile, new_extension: str, request: Request) -> Any:
+        new_extension = filter_extension(extension=new_extension)
         try:
             options = Options('./core/Options.json')
             if not REG_STR.fullmatch(new_extension):
@@ -30,7 +31,7 @@ class Converter:
             # Check if file heavy or not 
             if file_size_mb >= options.max_size:
                 return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Your file must be {options.max_size} MB or lighter !"})
-
+            
             return await Converter.select_converter(file, new_extension, request)
         except Exception as e:
             return templates.TemplateResponse(request=request, name=ERROR_PAGE, context={"error_detail": f"Error while verifying your file : {e}"})
@@ -72,9 +73,10 @@ class Converter:
     @staticmethod
     def convert_text(tmp_path: str, file: UploadFile,  new_extension: str, request: Request):
         try:
+            new_extension = filter_extension(new_extension)
             buf = BytesIO()
             binary_file = buf.read(-1)
-            output: str = (tmp_path + "." + new_extension) or ""
+            output: str = f"{tmp_path}.{new_extension}"
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_text(source=binary_file, to=new_extension, format=new_extension)
             new_file = FileResponse(
@@ -94,7 +96,7 @@ class Converter:
             if new_extension == "pdf":
                 extra_args = ["--pdf-engine=weasyprint"]
             
-            output: str = (tmp_path + "." + new_extension) or ""
+            output: str = f"{tmp_path}.{new_extension}"
             new_file_name = (file.filename or "").rsplit(".", 1)[0]
             pypandoc.convert_file(tmp_path, new_extension, outputfile=output, extra_args=extra_args)
             new_file = FileResponse(

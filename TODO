@@ -1,3 +1,5 @@
 TODO : Create file's compressions functions
 TODO : Create script to install tools mentionned in README (bat, sh and cmd)
 TODO : Translate french code and comments in english
+TODO : Do CODE_OF_CONDUCT file
+TODO : Replace new_extension variable by a function with filters

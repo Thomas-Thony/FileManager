@@ -33,25 +33,22 @@ class ConvertVideo:
             with tempfile.NamedTemporaryFile(delete=False) as output_tmp:
                 input_tmp.write(input_bytes)
                 output_path = output_tmp.name
-                
-            # output_path =  output_path = f"{input_path}.{extension}"
             
+            # Read the binary to add into response
             buf = BytesIO()
             buf.seek(0)
-            
             output_bytes = buf.read(-1)
 
+            # Get the MIME from binary signature
             mime = magic.Magic(mime=True)
             new_mime: str | Literal["application/octet-stream"] = mime.from_buffer(output_bytes)
 
             return Response(
                 content=output_bytes,
                 media_type=new_mime,
-                headers={
-                    "Content-Disposition": f'attachment; filename="{basename}.{extension}"'
-                }
-            )
+                headers={"Content-Disposition": f'attachment; filename="{basename}.{extension}"'})
 
+        # FFMPEG Error
         except ffmpeg.Error as e:
             raise HTTPException(
                 status_code=500,
@@ -64,6 +61,7 @@ class ConvertVideo:
                 detail=f"Error while converting the video : {str(e)}"
             )
 
+        # Delete temporaries files we don"t need anymore
         finally:
             try:
                 if os.path.exists(input_path):
